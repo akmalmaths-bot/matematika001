@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akmaljon Ustoz Testi - Prezident Maktabiga Tayyorgarlik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); min-height: 100vh; overflow-x: hidden; }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .option-btn { transition: all 0.2s ease-in-out; }
+        .option-btn:hover:not(:disabled) { transform: scale(1.02); border-color: #3b82f6; background-color: #eff6ff; }
+        .correct-answer { background-color: #10b981 !important; color: white !important; border-color: #059669 !important; transform: scale(1.02); }
+        .wrong-answer { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
+        .explanation-box { animation: slideDown 0.4s ease-out forwards; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .bg-shape { position: absolute; z-index: -1; opacity: 0.1; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col relative">
+
+    <i class="fas fa-cube text-9xl bg-shape text-purple-600 top-10 left-10 rotate-12"></i>
+    <i class="fas fa-calculator text-9xl bg-shape text-blue-600 bottom-20 right-10 -rotate-12"></i>
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm py-4 sticky top-0 z-10">
+        <div class="container mx-auto px-4 max-w-4xl flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg"><i class="fas fa-user-tie text-xl"></i></div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-indigo-900 leading-tight">Akmaljon Ustoz</h1>
+                    <p class="text-indigo-600 text-xs font-bold uppercase tracking-wider">PM Tayyorgarlik</p>
+                </div>
+            </div>
+            <div class="hidden md:flex space-x-4 bg-indigo-50 px-4 py-2 rounded-full font-bold text-indigo-800">
+                <span><i class="fas fa-star text-yellow-500"></i> Ball: <span id="header-score">0</span></span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-3xl z-0">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="bg-white rounded-3xl card-shadow p-8 text-center border-t-8 border-indigo-500">
+            <img src="https://cdn-icons-png.flaticon.com/512/3074/3074058.png" alt="Edu" class="w-24 h-24 mx-auto mb-4 drop-shadow-md">
+            <h2 class="text-3xl font-extrabold mb-4 text-gray-800">Bo'lajak liderlar, xush kelibsiz!</h2>
+            <div class="text-gray-600 mb-6 text-base md:text-lg leading-relaxed text-left bg-indigo-50 p-6 rounded-2xl">
+                <p class="mb-3">Men, <b>Akmaljon ustozingiz</b>, Prezident maktabi darajasidagi mantiqiy va tanqidiy fikrlashga oid 36 ta savoldan iborat maxsus test tayyorladim.</p>
+                <p class="mt-3 font-bold text-indigo-600 text-center"><i class="fas fa-brain mr-2"></i> Diqqat bilan, o'ylab javob bering. Omad!</p>
+            </div>
+            <button onclick="startTest()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transition duration-300 transform hover:-translate-y-1 text-xl w-full md:w-auto">
+                Testni Boshlash <i class="fas fa-rocket ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="hidden">
+            <div class="flex justify-between items-end mb-2 px-2">
+                <span id="category-badge" class="font-bold text-indigo-600 uppercase text-xs md:text-sm bg-white px-3 py-1 rounded-t-lg shadow-sm">Mantiq</span>
+                <span class="font-bold text-gray-700 text-sm"><span id="question-counter" class="text-indigo-600 text-lg">1</span> / 36</span>
+            </div>
+            <div class="bg-white/50 rounded-full h-3 w-full mb-6 overflow-hidden">
+                <div id="progress-bar" class="bg-gradient-to-r from-green-400 to-indigo-500 h-full transition-all duration-300 w-0"></div>
+            </div>
+            
+            <div class="bg-white rounded-3xl card-shadow p-6 md:p-8 mb-6">
+                <h3 id="question-text" class="text-xl md:text-2xl font-bold text-gray-800 mb-6"></h3>
+                <div id="options-container" class="space-y-3"></div>
+                <div id="explanation-box" class="hidden mt-6 p-5 bg-green-50 border-2 border-green-200 rounded-2xl relative">
+                    <div class="absolute top-0 right-0 bg-green-200 text-green-800 px-3 py-1 rounded-bl-xl font-bold text-xs uppercase">Ustoz izohi</div>
+                    <div class="flex items-start mt-2">
+                        <div class="bg-green-500 text-white rounded-full p-2 mr-3 flex-shrink-0"><i class="fas fa-lightbulb"></i></div>
+                        <div><p id="explanation-text" class="text-sm md:text-base font-medium text-gray-800"></p></div>
+                    </div>
+                </div>
+            </div>
+            <button id="next-btn" onclick="nextQuestion()" class="hidden bg-gray-800 hover:bg-black text-white font-bold py-4 px-8 rounded-full shadow-lg transition duration-300 w-full text-lg">
+                Keyingi savol <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden bg-white rounded-3xl card-shadow p-8 text-center">
+            <div id="result-image" class="mb-4 flex justify-center"></div>
+            <h2 class="text-3xl font-extrabold mb-2 text-gray-800">Test Yakunlandi!</h2>
+            <p class="text-gray-500 font-bold uppercase mb-6">Sizning natijangiz</p>
+            <div class="flex justify-center items-center mb-6">
+                <div class="relative">
+                    <svg class="w-32 h-32 transform -rotate-90">
+                        <circle cx="64" cy="64" r="56" stroke="#f3f4f6" stroke-width="10" fill="none" />
+                        <circle id="score-circle" cx="64" cy="64" r="56" stroke="#4f46e5" stroke-width="10" fill="none" stroke-dasharray="352" stroke-dashoffset="352" class="transition-all duration-1000" />
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span id="final-score" class="text-3xl font-black text-indigo-600">0</span>
+                        <span class="text-gray-400 font-bold text-xs">/ 36</span>
+                    </div>
+                </div>
+            </div>
+            <div id="result-message" class="text-lg font-bold text-gray-700 mb-8 bg-indigo-50 p-5 rounded-2xl"></div>
+            <button onclick="restartTest()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg w-full md:w-auto">
+                <i class="fas fa-redo mr-2"></i> Qaytadan ishlash
+            </button>
+        </div>
+    </main>
+
+    <script>
+        const qs = [
+            { c: "Mantiqiy Fikrlash", q: "Ali 8 yoshda, ukasi esa undan 3 yosh kichik. 5 yildan keyin ularning yoshlari yig'indisi nechaga teng bo'ladi?", o: ["18", "21", "23", "25"], a: 2, e: "Hozir Ali 8 da, ukasi 8 - 3 = 5 yoshda. 5 yildan keyin Ali 13 yosh, ukasi 10 yosh bo'ladi. Ularning yig'indisi 13 + 10 = 23." },
+            { c: "Sonlar Qonuniyati", q: "Ketma-ketlikni davom ettiring: 2, 5, 10, 17, 26, ? ", o: ["35", "37", "39", "41"], a: 1, e: "Sonlar orasidagi farq toq sonlar ko'rinishida o'sib boryapti: +3, +5, +7, +9. Demak, keyingi farq +11 bo'lishi kerak. 26 + 11 = 37." },
+            { c: "Vaqt va Mantiq", q: "Agar kechadan oldingi kun Dushanba bo'lsa, ertadan keyingi kun qaysi kun bo'ladi?", o: ["Payshanba", "Juma", "Shanba", "Yakshanba"], a: 1, e: "Kechadan oldin = Dushanba. Demak, Kecha = Seshanba. Bugun = Chorshanba. Erta = Payshanba. Ertadan keyin esa JUMA bo'ladi." },
+            { c: "Geometriya va Mantiq", q: "To'g'ri to'rtburchakning bo'yi 12 sm, eni esa undan 4 sm qisqa. Ushbu to'g'ri to'rtburchakning perimetrini toping.", o: ["40 sm", "32 sm", "48 sm", "20 sm"], a: 0, e: "Eni bo'yidan 4 sm qisqa, demak eni 12 - 4 = 8 sm. Perimetr = 2 × (bo'yi + eni) = 2 × (12 + 8) = 40 sm." },
+            { c: "Tanqidiy Fikrlash", q: "Hovlida tovuqlar va qo'ylar bor. Ularning boshlari soni jami 10 ta, oyoqlari soni esa 32 ta. Hovlida nechta qo'y bor?", o: ["4 ta", "5 ta", "6 ta", "7 ta"], a: 2, e: "Barchasini tovuq deb faraz qilsak: 10 ta bosh × 2 = 20 ta oyoq bo'lardi. Bizda 32 ta oyoq bor. Farq: 32 - 20 = 12 ta oyoq. Bu ortiqcha oyoqlar qo'ylarga tegishli (+2 tadan). 12 ÷ 2 = 6 ta qo'y." },
+            { c: "Kasrlar", q: "Ertak kitobining 1/4 qismi 20 betni tashkil qiladi. Kitob jami necha betdan iborat?", o: ["60 bet", "80 bet", "100 bet", "120 bet"], a: 1, e: "Agar butun kitobning to'rtdan bir qismi (1/4) 20 bet bo'lsa, butun kitobni topish uchun 20 ni 4 ga ko'paytiramiz: 20 × 4 = 80 bet." },
+            { c: "Mantiqiy Tezyurarlik", q: "3 ta mushuk 3 ta sichqonni 3 minutda tutadi. 10 ta mushuk 10 ta sichqonni necha minutda tutadi?", o: ["3 minut", "10 minut", "30 minut", "1 minut"], a: 0, e: "Har bir mushuk o'zining sichqonini tutishi uchun 3 minut sarflaydi. Ular bir vaqtda harakat qilishadi. 10 ta mushuk ham 10 ta sichqonni o'sha 3 minut ichida tutadi." },
+            { c: "Tezlik, Vaqt, Masofa", q: "Avtomobil 2 soatda 160 km masofani bosib o'tdi. U xuddi shunday tezlikda 5 soatda qancha masofa bosadi?", o: ["320 km", "400 km", "480 km", "500 km"], a: 1, e: "Avval tezlikni topamiz: V = S ÷ t = 160 ÷ 2 = 80 km/soat. Endi 5 soatda qancha yurishini topamiz: S = V × t = 80 × 5 = 400 km." },
+            { c: "Fazoiy Mantiq", q: "Oddiy o'yin kubigining (zarikning) nechta qirrasi bor?", o: ["6 ta", "8 ta", "12 ta", "16 ta"], a: 2, e: "Kubning 6 ta tomoni (yuzi), 8 ta uchi (burchagi) va 12 ta qirrasi (chiziqlari) bor." },
+            { c: "Sonli Masala", q: "1 dan 50 gacha bo'lgan natural sonlar yozib chiqilganda, 5 raqami jami necha marta ishlatiladi?", o: ["5 marta", "6 marta", "10 marta", "15 marta"], a: 1, e: "Sanab chiqamiz: 5, 15, 25, 35, 45, 50. Jami 6 marta ishlatiladi." },
+            { c: "Uzunlik va O'lchov", q: "To'g'ri chiziq bo'ylab qator qilib 10 ta daraxt ekildi. Har bir daraxt orasidagi masofa 5 metr. Birinchi va oxirgi daraxt orasidagi jami masofa qancha?", o: ["50 metr", "45 metr", "40 metr", "55 metr"], a: 1, e: "10 ta daraxt orasida 9 ta bo'shliq (oraliq) bo'ladi. Har bir oraliq 5 metrdan. Jami masofa: 9 × 5 = 45 metr." },
+            { c: "Mantiqiy Tenglik", q: "Tarozining bir pallasida 5 ta olma, ikkinchi pallasida 3 ta nok bor va ular teng. 10 ta olma og'irligi nechta nok og'irligiga teng bo'ladi?", o: ["5 ta", "6 ta", "8 ta", "10 ta"], a: 1, e: "5 ta olma = 3 ta nok. Olmalar soni 2 barobar ortsa (10 ta), noklar soni ham 2 barobar ortishi kerak. 3 × 2 = 6 ta nok." },
+            { c: "Raqamlar qonuniyati", q: "Kitob betlarini raqamlash uchun jami 15 ta raqam ishlatildi. Kitob necha betlik?", o: ["10 bet", "12 bet", "15 bet", "20 bet"], a: 1, e: "1 dan 9 gacha 9 ta raqam ketadi. Qolgan raqamlar soni: 15 - 9 = 6 ta. 10-betdan boshlab har bir betga 2 tadan raqam ketadi. 6 ÷ 2 = 3 ta bet (10, 11, 12). Jami 9 + 3 = 12 bet." },
+            { c: "Yoshga doir masala", q: "Ota 35 yoshda, uning o'g'li esa 5 yoshda. Necha yildan keyin ota o'g'lidan 4 marta katta bo'ladi?", o: ["3 yildan keyin", "5 yildan keyin", "7 yildan keyin", "10 yildan keyin"], a: 1, e: "5 yildan keyin ota 40 yosh (35+5), o'g'il esa 10 yosh (5+5) bo'ladi. 40 soni 10 dan 4 marta katta." },
+            { c: "Sonlar xossasi", q: "Ketma-ket kelgan 3 ta toq sonning yig'indisi 27 ga teng. Bu sonlarning eng kattasi nechaga teng?", o: ["7", "9", "11", "13"], a: 2, e: "O'rtadagi sonni topish uchun yig'indini sonlar miqdoriga bo'lamiz: 27 ÷ 3 = 9. Sonlar: 7, 9, 11. Eng kattasi 11." },
+            { c: "Mantiqiy vazn", q: "Idishning yarmi suv bilan to'la bo'lganda og'irligi 10 kg, to'la bo'lganda esa 18 kg. Bo'sh idishning og'irligi qancha?", o: ["2 kg", "4 kg", "6 kg", "8 kg"], a: 0, e: "Idishning yarmi to'lgandan tortib to'liq to'lguncha qo'shilgan suvning yarmi 18 - 10 = 8 kg. Demak, to'liq suv 16 kg. To'la idish 18 kg bo'lsa, bo'sh idish: 18 - 16 = 2 kg." },
+            { c: "Kesish mantig'i", q: "Usta arqonni 4 joyidan kesdi. Natijada arqon nechta bo'lakka bo'lindi?", o: ["3 ta", "4 ta", "5 ta", "6 ta"], a: 2, e: "To'g'ri chiziq shaklidagi jismni N marta kessangiz, N+1 ta bo'lak hosil bo'ladi. 4 marta kesilganda 5 ta bo'lak chiqadi." },
+            { c: "Ehtimollik", q: "Quti ichida 5 ta qizil va 3 ta ko'k shar bor. Qutiga qaramasdan kamida nechta shar olinsa, ular ichida aniq 1 ta ko'k shar bo'lishi kafolatlanadi?", o: ["2 ta", "4 ta", "6 ta", "8 ta"], a: 2, e: "Eng yomon holatda 5 ta shar olsak, beshovi ham qizil chiqishi mumkin. Lekin 6-sharni olsak, u aniq ko'k bo'ladi. Javob: 6 ta." },
+            { c: "O'rin va qator", q: "Malika bitta qatorda turibdi. Uni boshidan sanaganda 5-o'rinda, oxiridan sanaganda esa 8-o'rinda turibdi. Qatorda jami nechta odam bor?", o: ["12 ta", "13 ta", "14 ta", "11 ta"], a: 0, e: "Boshidan 5-o'rinda (oldinda 4 kishi), oxiridan 8-o'rinda (orqada 7 kishi). Jami: 4 + 1 (Malika) + 7 = 12 kishi." },
+            { c: "Sonlar Qonuniyati", q: "Ketma-ketlikda so'roq o'rniga qanday son keladi: 2, 4, 8, 16, 32, ? ", o: ["48", "64", "56", "72"], a: 1, e: "Har bir son o'zidan oldingi sonni 2 ga ko'paytirish orqali hosil bo'lyapti. 32 × 2 = 64." },
+            { c: "Ish va Vaqt", q: "4 ta duradgor 4 kunda 4 ta stul yasaydi. 8 ta duradgor 8 kunda nechta stul yasaydi?", o: ["8 ta", "16 ta", "32 ta", "64 ta"], a: 1, e: "4 ta usta 4 kunda 4 ta qilsa, ularning tezligi 1 kishi 4 kunda 1 ta stul yasaydi degani. 8 ta usta 4 kunda 8 ta yasaydi. 8 kunda esa (2 marta ko'p) 16 ta stul yasaydi." },
+            { c: "To'plamlar", q: "Sinfda 30 o'quvchi bor. 18 tasi ingliz tiliga, 15 tasi rus tiliga qatnashadi. 5 kishi hech qayerga qatnashmaydi. Nechta o'quvchi har ikkala tilga qatnashadi?", o: ["3 ta", "5 ta", "8 ta", "10 ta"], a: 2, e: "To'garakka qatnashuvchilar: 30 - 5 = 25 kishi. Tillar bo'yicha yig'indi: 18 + 15 = 33 ta. Farq: 33 - 25 = 8 ta (ikkalasiga qatnaydiganlar)." },
+            { c: "Geometriya", q: "Soatning minut mili 15 minut ichida necha gradusga buriladi?", o: ["15°", "45°", "90°", "180°"], a: 2, e: "1 minutda mil 360 ÷ 60 = 6 gradusga buriladi. 15 minutda esa 15 × 6 = 90 gradusga buriladi." },
+            { c: "Harakatga doir masala", q: "A va B shaharlar orasi 120 km. Ikkita velosipedchi bir-biriga qarab 20 km/soat va 40 km/soat tezlik bilan chiqdi. Ular qancha vaqtdan keyin uchrashishadi?", o: ["1 soat", "2 soat", "3 soat", "4 soat"], a: 1, e: "Yaqinlashish tezligi: 20 + 40 = 60 km/soat. Uchrashish vaqti: T = S ÷ V = 120 ÷ 60 = 2 soat." },
+            { c: "Aralash mantiq", q: "100 ni yarmiga bo'lib, unga 50 ni qo'shsangiz necha hosil bo'ladi?", o: ["100", "250", "200", "150"], a: 1, e: "100 ni 2 ga emas, yarmiga (0.5 yoki 1/2 ga) bo'lish so'ralyapti. 100 ÷ 0.5 = 200. Unga 50 ni qo'shsak 250." },
+            { c: "Mantiqiy Vaqt", q: "1 ta qozonda 3 ta tuxum qaynashiga 15 minut kerak. Xuddi shunday qozonda 6 ta tuxum pishishi uchun necha minut qaynashi kerak?", o: ["15 minut", "30 minut", "45 minut", "10 minut"], a: 0, e: "Tuxumlar qozonda bir vaqtda qaynaydi. Miqdori ko'paysa ham qaynash jarayoni (vaqti) o'zgarmaydi. Javob 15 minut." },
+            { c: "Tenglama", q: "O'ylagan sondan 7 ni ayirib, natijani 3 ga ko'paytirsam 24 hosil bo'ldi. Men qaysi sonni o'ylaganman?", o: ["12", "15", "8", "21"], a: 1, e: "Orqaga qaytamiz: 24 ÷ 3 = 8. Unga 7 ni qo'shamiz: 8 + 7 = 15. Demak u 15 ni o'ylagan." },
+            { c: "Ish va Vaqt", q: "Yog'ochni arra bilan 3 bo'lakka ajratish uchun 12 minut vaqt ketdi. Uni 4 bo'lakka ajratish uchun necha minut ketadi?", o: ["16 minut", "18 minut", "24 minut", "20 minut"], a: 1, e: "3 bo'lak qilish uchun 2 marta kesish kerak (1 kesish 6 min). 4 bo'lak qilish uchun 3 marta kesish kerak. 3 × 6 = 18 minut." },
+            { c: "Ketma-ketlik", q: "Fibonachchi ketma-ketligidagi keyingi sonni toping: 1, 1, 2, 3, 5, 8, ? ", o: ["10", "11", "12", "13"], a: 3, e: "Har bir son o'zidan oldingi ikkita sonning yig'indisiga teng. 5 + 8 = 13." },
+            { c: "Kasr va Foiz", q: "'MATEMATIKA' so'zida 'A' harfi barcha harflarning qanday qismini tashkil qiladi?", o: ["2/10", "3/10", "4/10", "1/3"], a: 1, e: "So'zda jami 10 ta harf bor. Ulardan 3 tasi 'A'. Demak 3/10 qism." },
+            { c: "Kvadrat yuzasi", q: "Kvadrat maydonning perimetri 40 metr. Uning yuzi qancha?", o: ["100 m²", "160 m²", "80 m²", "400 m²"], a: 0, e: "Tomoni: 40 ÷ 4 = 10 metr. Yuzasi: 10 × 10 = 100 m²." },
+            { c: "Kombinatorika", q: "Xonada 6 kishi o'tiribdi. Ular har biri boshqalar bilan bir martadan qo'l berib ko'rishishdi. Jami qo'l berishishlar soni nechta?", o: ["15 ta", "21 ta", "30 ta", "36 ta"], a: 0, e: "Formula: n(n-1)/2. Yoki: 5+4+3+2+1 = 15 ta qo'l siqish." },
+            { c: "Kombinatorika", q: "0, 1, 2 raqamlaridan foydalanib (raqamlar takrorlanmasdan) nechta ikki xonali son tuzish mumkin?", o: ["2 ta", "4 ta", "6 ta", "9 ta"], a: 1, e: "Ikki xonali son 0 bilan boshlanmaydi. Bular: 10, 12, 20, 21. Jami 4 ta." },
+            { c: "Tenglama", q: "Savatda 10 ta olma va nok bor. Olmalar noklardan 4 taga ko'p. Savatda nechta olma bor?", o: ["6 ta", "7 ta", "8 ta", "5 ta"], a: 1, e: "Ortiqcha 4 tani ayirsak 6 qoladi. Ikkiga bo'lsak 3 ta nok chiqadi. Olma: 3 + 4 = 7 ta." },
+            { c: "Mantiqiy tortishish", q: "G'ishtning og'irligi 1 kg va yana yarimta g'isht og'irligiga teng. Bitta butun g'ishtning og'irligi qancha?", o: ["1.5 kg", "2 kg", "2.5 kg", "3 kg"], a: 1, e: "Agar yarim g'isht qismi + 1kg butun g'ishtni tashkil qilsa, demak ikkinchi yarmi 1kg degani. Butun g'isht 2 kg." },
+            { c: "Qiziqarli Mantiq", q: "Tungi soat 12 da yomg'ir yog'moqda. 72 soatdan keyin quyosh charaqlab chiqib turishiga umid qilsa bo'ladimi?", o: ["Ha, bo'ladi", "Yo'q, bo'lmaydi", "Balki", "Faqat qishda"], a: 1, e: "72 soat bu 3 sutka. Hozir tunda soat 12 bo'lsa, 72 soatdan keyin yana tungi soat 12 bo'ladi. Tunda esa quyosh chiqmaydi!" }
+        ];
+
+        let currQ = 0, score = 0, answered = false;
+
+        function startTest() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            currQ = 0; score = 0;
+            document.getElementById('header-score').textContent = '0';
+            loadQ();
+        }
+
+        function loadQ() {
+            answered = false;
+            const q = qs[currQ];
+            document.getElementById('category-badge').textContent = q.c;
+            document.getElementById('question-text').textContent = q.q;
+            document.getElementById('question-counter').textContent = currQ + 1;
+            document.getElementById('progress-bar').style.width = `${(currQ / qs.length) * 100}%`;
+            
+            document.getElementById('explanation-box').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            
+            const opts = document.getElementById('options-container');
+            opts.innerHTML = '';
+            
+            q.o.forEach((optText, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-4 rounded-xl border-2 border-gray-100 bg-white text-gray-700 font-bold text-sm md:text-lg flex items-center shadow-sm';
+                btn.innerHTML = `<div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center mr-3 flex-shrink-0">${['A','B','C','D'][i]}</div> <span>${optText}</span>`;
+                btn.onclick = () => selectOpt(i, btn);
+                opts.appendChild(btn);
+            });
+        }
+
+        function selectOpt(idx, btn) {
+            if(answered) return;
+            answered = true;
+            const q = qs[currQ];
+            const allBtns = document.getElementById('options-container').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if(idx === q.a) {
+                btn.classList.add('correct-answer');
+                btn.querySelector('div').classList.add('bg-white', 'text-green-600');
+                score++;
+                document.getElementById('header-score').textContent = score;
+            } else {
+                btn.classList.add('wrong-answer');
+                btn.querySelector('div').classList.add('bg-white', 'text-red-600');
+                const cBtn = allBtns[q.a];
+                cBtn.classList.add('border-green-500', 'bg-green-50');
+                cBtn.querySelector('div').classList.add('bg-green-500', 'text-white');
+            }
+
+            document.getElementById('explanation-text').textContent = q.e;
+            document.getElementById('explanation-box').classList.remove('hidden');
+            
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.innerHTML = currQ === qs.length - 1 ? 'Natijani bilish <i class="fas fa-flag-checkered ml-2"></i>' : 'Keyingi savol <i class="fas fa-arrow-right ml-2"></i>';
+        }
+
+        function nextQuestion() {
+            currQ++;
+            if(currQ < qs.length) loadQ();
+            else showRes();
+        }
+
+        function showRes() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            const pct = (score / qs.length) * 100;
+            setTimeout(() => {
+                document.getElementById('score-circle').style.strokeDashoffset = 352 - (352 * pct) / 100;
+            }, 100);
+            document.getElementById('final-score').textContent = score;
+
+            const msg = document.getElementById('result-message');
+            const img = document.getElementById('result-image');
+            
+            if(pct >= 90) {
+                msg.innerHTML = "<span class='text-green-600'>Super!</span> Akmaljon ustozingiz sizdan juda faxrlanadi!";
+                img.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/3135/3135810.png" class="w-24 h-24">';
+            } else if(pct >= 70) {
+                msg.innerHTML = "Juda yaxshi! Mantiqiy fikrlashingiz ajoyib ishlayapti.";
+                img.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" class="w-24 h-24">';
+            } else {
+                msg.innerHTML = "Harakat qilsangiz, albatta uddalaysiz. Xatolarni o'rganib oling!";
+                img.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/3135/3135789.png" class="w-24 h-24">';
+            }
+        }
+
+        function restartTest() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('score-circle').style.strokeDashoffset = 352;
+            startTest();
+        }
+    </script>
+</body>
+</html>
