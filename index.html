@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matematika Testi - Ustozlar uchun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0fdf4; /* Light green background */
+        }
+        
+        .option-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .correct-answer {
+            background-color: #22c55e !important; /* Green */
+            color: white !important;
+            border-color: #16a34a !important;
+        }
+        
+        .wrong-answer {
+            background-color: #ef4444 !important; /* Red */
+            color: white !important;
+            border-color: #dc2626 !important;
+        }
+
+        .explanation-box {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Math rendering helpers */
+        .math-inline {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-green-600 text-white shadow-md py-6">
+        <div class="container mx-auto px-4 max-w-3xl text-center">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2">Boshlang'ich Ta'lim Ustozlari Uchun Test</h1>
+            <p class="text-green-100 text-sm md:text-base">Matematik bilim va o'qitish metodikasini sinab ko'ring</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-3xl">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center">
+            <div class="mb-6 text-green-500">
+                <i class="fas fa-graduation-cap text-6xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Testga xush kelibsiz!</h2>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                Ushbu interaktiv test boshlang'ich sinf ustozlarining matematik tushunchalari va pedagogik mahoratini tekshirishga qaratilgan. Test 10 ta savoldan iborat bo'lib, har bir savoldan so'ng to'g'ri javob va uning batafsil izohini ko'rishingiz mumkin.
+            </p>
+            <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                Testni Boshlash <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Quiz Container (Hidden initially) -->
+        <div id="quiz-container" class="hidden">
+            
+            <!-- Progress Bar -->
+            <div class="bg-white rounded-full h-4 w-full mb-6 shadow-inner overflow-hidden border border-gray-100">
+                <div id="progress-bar" class="bg-green-500 h-full transition-all duration-500 ease-out w-0 rounded-full"></div>
+            </div>
+            
+            <!-- Question Header -->
+            <div class="flex justify-between items-center mb-4 px-2">
+                <span id="question-counter" class="text-green-600 font-semibold bg-green-100 px-3 py-1 rounded-full text-sm">Savol 1 / 10</span>
+                <span id="score-display" class="text-gray-500 font-medium text-sm">To'g'ri javoblar: 0</span>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 border-t-4 border-green-500">
+                <div id="category-badge" class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Qism 1: Matematik qonuniyatlar</div>
+                <h3 id="question-text" class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 leading-snug"></h3>
+                
+                <!-- Options -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Buttons will be generated here by JS -->
+                </div>
+
+                <!-- Explanation Box (Hidden initially) -->
+                <div id="explanation-box" class="hidden mt-6 p-5 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg text-sm md:text-base text-gray-700 explanation-box">
+                    <div class="font-bold text-blue-700 mb-1 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i> Izoh:
+                    </div>
+                    <p id="explanation-text" class="leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Next Button (Hidden initially) -->
+            <div class="text-right">
+                <button id="next-btn" onclick="nextQuestion()" class="hidden bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-300">
+                    Keyingi savol <i class="fas fa-chevron-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen (Hidden initially) -->
+        <div id="result-screen" class="hidden bg-white rounded-2xl shadow-lg p-6 md:p-10 text-center border-t-8 border-green-500">
+            <div id="result-icon" class="mb-4 text-5xl"></div>
+            <h2 class="text-3xl font-bold mb-2 text-gray-800">Test yakunlandi!</h2>
+            <p class="text-gray-600 mb-6">Sizning natijangiz:</p>
+            
+            <div class="flex justify-center items-center mb-8">
+                <div class="bg-green-100 rounded-full h-32 w-32 flex items-center justify-center border-4 border-green-500 shadow-inner">
+                    <span id="final-score" class="text-4xl font-black text-green-700">0/10</span>
+                </div>
+            </div>
+            
+            <p id="result-message" class="text-lg font-medium text-gray-700 mb-8 px-4"></p>
+            
+            <button onclick="restartTest()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105">
+                <i class="fas fa-redo mr-2"></i> Qaytadan ishlash
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center text-sm mt-auto">
+        <p>© 2024 Boshlang'ich Ta'lim Ustozlari uchun maxsus tayyorlandi.</p>
+    </footer>
+
+    <script>
+        // Test Data
+        const questions = [
+            {
+                category: "1-QISM: Matematik tushunchalar",
+                question: "1 dan 100 gacha bo'lgan natural sonlar yozib chiqilganda, 9 raqami jami necha marta qatnashadi?",
+                options: ["10 marta", "11 marta", "19 marta", "20 marta"],
+                correctAnswer: 3, // Index 3 is "20 marta"
+                explanation: "9 raqami birlar xonasida 10 marta (9, 19, 29...99) va o'nlar xonasida 10 marta (90, 91, 92...99) qatnashadi. (99 sonida 9 raqami 2 marta sanaladi, biri birlar, ikkinchisi o'nlar xonasi uchun). Jami 10 + 10 = 20 ta."
+            },
+            {
+                category: "1-QISM: Matematik tushunchalar",
+                question: "Quyidagi tasdiqlardan qaysi biri doimo to'g'ri?",
+                options: [
+                    "Ikkita toq sonning ko'paytmasi doim juft bo'ladi.",
+                    "Ikkita juft sonning yig'indisi doim toq bo'ladi.",
+                    "Toq va juft sonning yig'indisi doim toq bo'ladi.",
+                    "Ikkita tub sonning yig'indisi doim juft bo'ladi."
+                ],
+                correctAnswer: 2,
+                explanation: "A xato (toq ko'paytirilgan toq = toq), B xato (juft+juft=juft), D xato (masalan, eng kichik tub son 2 juft: 2 + 3 = 5, yig'indi toq bo'lib qoladi). C doim to'g'ri (masalan, 3 + 4 = 7)."
+            },
+            {
+                category: "1-QISM: Matematik tushunchalar",
+                question: "To'g'ri kasrning (surati maxrajidan kichik) surati va maxrajiga bir xil natural son qo'shilsa, kasrning qiymati qanday o'zgaradi?",
+                options: ["Kamayadi", "Ortadi", "O'zgarmaydi", "Kasrning berilishiga qarab o'zgaradi"],
+                correctAnswer: 1,
+                explanation: "Masalan, 1/2 kasrini olaylik (0.5). Surat va maxrajiga 1 qo'shsak, 2/3 bo'ladi (~0.66). 0.66 > 0.5. Agar kasr to'g'ri kasr bo'lsa, bir xil son qo'shilganda qiymat doim 1 ga (butunga) yaqinlashib, kattalashadi."
+            },
+            {
+                category: "1-QISM: Matematik tushunchalar",
+                question: "Kvadratning tomoni 3 marta kattalashtirilsa, uning yuzi qanday o'zgaradi?",
+                options: ["3 marta ortadi", "6 marta ortadi", "9 marta ortadi", "12 marta ortadi"],
+                correctAnswer: 2,
+                explanation: "Kvadratning yuzi S = a × a. Agar tomoni 3a bo'lsa, yuzi S = (3a) × (3a) = 9 × (a × a) bo'ladi. Yuzaga keladigan xato ko'pincha '3 marta ortadi' deb o'ylashdir, bu yuzalar va perimetrlar farqini tushuntirishda muhim."
+            },
+            {
+                category: "1-QISM: Matematik tushunchalar",
+                question: "Mantiqiy masala: Qafasda tovuqlar va quyonlar bor. Ularning boshlari soni jami 35 ta, oyoqlari soni esa 94 ta. Qafasda nechta quyon bor?",
+                options: ["12 ta", "23 ta", "15 ta", "17 ta"],
+                correctAnswer: 0,
+                explanation: "Faraz qilaylik, hammasi tovuq (2 oyoqli). Unda 35 ta boshdan 35 × 2 = 70 ta oyoq chiqadi. Lekin bizda 94 ta oyoq bor. 94 - 70 = 24 ta ortiqcha oyoq quyonlarga tegishli (har bir quyonga +2 ta oyoqdan berib chiqamiz). 24 ÷ 2 = 12. Demak, 12 ta quyon bor."
+            },
+            {
+                category: "2-QISM: O'qitish metodikasi",
+                question: "O'quvchilarga '0 ga bo'lish mumkin emas' qoidasini tushuntirishning eng ilmiy va tushunarli usuli qaysi?",
+                options: [
+                    "'Bu matematikaning o'zgarmas qoidasi' deb yodlatish.",
+                    "Bo'lishning ko'paytirishga teskari ekanligini ko'rsatish (Masalan: 5 ÷ 0 = x → x · 0 = 5 bunday son yo'q).",
+                    "Kalkulyatorda hisoblab, 'Error' chiqishini ko'rsatish.",
+                    "Noldan faqat ayirish va unga qo'shish mumkinligini aytib o'tib ketish."
+                ],
+                correctAnswer: 1,
+                explanation: "Boshlang'ich sinfda quruq yodlatish mantiqiy fikrlashni o'ldiradi. O'quvchi 12 ÷ 3 = 4 ekanligini, chunki 4 × 3 = 12 ekanligi orqali tushunadi. Xuddi shunday, 5 ÷ 0 degani 'Qaysi sonni 0 ga ko'paytirsam 5 chiqadi?' degani. Bunday son yo'q."
+            },
+            {
+                category: "2-QISM: O'qitish metodikasi",
+                question: "Boshlang'ich sinfda 'Tenglama' (noma'lum son) tushunchasini ilk bor kiritishda eng samarali ko'rgazmali qurol / model qaysi?",
+                options: [
+                    "Murakkab sonli ifodalar yozilgan tarqatma materiallar",
+                    "Koordinatalar nuri",
+                    "Ikki pallali tarozi va muvozanat tushunchasi",
+                    "Faqat darslikdagi qoidalarni o'qitish"
+                ],
+                correctAnswer: 2,
+                explanation: "Tenglama bu – muvozanat. Tarozining bir pallasiga (x + 2) ta tosh, ikkinchi pallasiga 5 ta tosh qo'yish orqali muvozanatni tushuntirish 'tenglik' va 'noma'lum' tushunchalarini o'quvchi ongiga eng vizual va tez olib kiruvchi model hisoblanadi."
+            },
+            {
+                category: "2-QISM: O'qitish metodikasi",
+                question: "O'quvchi 98 + 45 misolini hisoblashda miyasida (100 + 45) - 2 usulidan foydalandi. O'quvchi qanday usuldan foydalangan?",
+                options: [
+                    "O'rin almashtirish xossasi",
+                    "Taqsimot xossasi",
+                    "Sonni yaxlitlash orqali qulay usulda hisoblash",
+                    "Guruhlash xossasi"
+                ],
+                correctAnswer: 2,
+                explanation: "O'quvchi 98 sonini unga eng yaqin dumaloq (yuzlik) son 100 ga yaxlitlab olib ishni osonlashtiryapti, bu jarayon aqliy arifmetika (mental math) qobiliyati kuchliligini bildiradi."
+            },
+            {
+                category: "2-QISM: O'qitish metodikasi",
+                question: "O'quvchi 7 × 8 ni eslay olmadi, lekin 7 × 4 = 28 ekanini biladi. Unga qanday maslahat berish eng samarali metodik usul hisoblanadi?",
+                options: [
+                    "Jadvalni boshidan takrorlashni aytish.",
+                    "'28 ni ikkiga ko'paytir' yoki unga yana bitta 28 qo'sh deb mantiqan yo'l ko'rsatish.",
+                    "Javob 56 ekanligini aytish va yozib qo'yish.",
+                    "8 × 7 qilib, o'rinlarini almashtirib ko'rishni so'rash."
+                ],
+                correctAnswer: 1,
+                explanation: "7 × 8 bu sakkizta 7 ning yig'indisi. Agar bola 7 × 4 = 28 ni bilsa, 8 soni 4 dan ikki barobar katta ekanligini bog'lab, jami javobni 28 + 28 = 56 deb topishi o'quvchida guruhlash va mantiqiy bog'lash qobiliyatini rivojlantiradi."
+            },
+            {
+                category: "2-QISM: O'qitish metodikasi",
+                question: "Qisqa yozuvli matnli masalalarni yechishda o'quvchi masalaning shartini tushunishga qiynalyapti. O'qituvchining birinchi qadami qanday bo'lishi kerak?",
+                options: [
+                    "To'g'ridan-to'g'ri formulani yozib berish.",
+                    "Masalani qismlarga bo'lib, har bir gapni o'qib chizma (yoki sxema) chizdirish.",
+                    "Xuddi shunga o'xshash yechilgan masalani ko'rsatish.",
+                    "Ota-onasiga uyda shug'ullanishni tayinlash."
+                ],
+                correctAnswer: 1,
+                explanation: "Boshlang'ich sinf o'quvchilarida ko'rgazmali-obrazli tafakkur yetakchi bo'ladi. Matnni mavhumligicha qoldirmay, uni qog'ozda chizmalar, kesmalar yordamida vizuallashtirish orqali o'quvchi jarayonni tushuna boshlaydi."
+            }
+        ];
+
+        // State Variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const categoryBadge = document.getElementById('category-badge');
+        const questionCounter = document.getElementById('question-counter');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressBar = document.getElementById('progress-bar');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationText = document.getElementById('explanation-text');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Initialize Test
+        function startTest() {
+            welcomeScreen.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            updateScoreDisplay();
+            loadQuestion();
+        }
+
+        // Load current question
+        function loadQuestion() {
+            isAnswered = false;
+            const currentQ = questions[currentQuestionIndex];
+            
+            // Update UI
+            categoryBadge.textContent = currentQ.category;
+            questionText.textContent = currentQ.question;
+            questionCounter.textContent = `Savol ${currentQuestionIndex + 1} / ${questions.length}`;
+            
+            // Update Progress Bar
+            const progressPercentage = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            // Hide explanation and next button
+            explanationBox.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Generate option buttons
+            currentQ.options.forEach((optionText, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-400 bg-white text-gray-700 font-medium text-sm md:text-base mb-3 focus:outline-none';
+                
+                // Add letter prefix (A, B, C, D)
+                const letter = String.fromCharCode(65 + index);
+                button.innerHTML = `<span class="inline-block w-8 h-8 bg-gray-100 rounded-lg text-center leading-8 mr-3 font-bold text-gray-500">${letter}</span> ${optionText}`;
+                
+                button.onclick = () => selectOption(index, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Handle option selection
+        function selectOption(selectedIndex, selectedButton) {
+            if (isAnswered) return; // Prevent multiple clicks
+            isAnswered = true;
+
+            const currentQ = questions[currentQuestionIndex];
+            const allButtons = optionsContainer.querySelectorAll('button');
+
+            // Disable all buttons
+            allButtons.forEach(btn => btn.disabled = true);
+
+            // Check if correct
+            if (selectedIndex === currentQ.correctAnswer) {
+                // Correct answer UI
+                selectedButton.classList.add('correct-answer');
+                selectedButton.classList.remove('border-gray-200');
+                score++;
+                updateScoreDisplay();
+                
+                // Change letter styling
+                const letterSpan = selectedButton.querySelector('span');
+                letterSpan.classList.remove('bg-gray-100', 'text-gray-500');
+                letterSpan.classList.add('bg-white', 'text-green-600');
+            } else {
+                // Wrong answer UI
+                selectedButton.classList.add('wrong-answer');
+                selectedButton.classList.remove('border-gray-200');
+                
+                const letterSpanW = selectedButton.querySelector('span');
+                letterSpanW.classList.remove('bg-gray-100', 'text-gray-500');
+                letterSpanW.classList.add('bg-white', 'text-red-600');
+
+                // Highlight correct answer
+                const correctButton = allButtons[currentQ.correctAnswer];
+                correctButton.classList.add('border-green-500', 'bg-green-50');
+                const letterSpanC = correctButton.querySelector('span');
+                letterSpanC.classList.remove('bg-gray-100');
+                letterSpanC.classList.add('bg-green-200', 'text-green-800');
+            }
+
+            // Show explanation
+            explanationText.textContent = currentQ.explanation;
+            explanationBox.classList.remove('hidden');
+
+            // Show Next/Finish button
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.innerHTML = 'Natijani ko\'rish <i class="fas fa-flag-checkered ml-1"></i>';
+            } else {
+                nextBtn.innerHTML = 'Keyingi savol <i class="fas fa-chevron-right ml-1"></i>';
+            }
+            nextBtn.classList.remove('hidden');
+        }
+
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `To'g'ri javoblar: ${score}`;
+        }
+
+        // Move to next question or finish
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Display final results
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            const finalScoreEl = document.getElementById('final-score');
+            const resultMessage = document.getElementById('result-message');
+            const resultIcon = document.getElementById('result-icon');
+            
+            finalScoreEl.textContent = `${score}/${questions.length}`;
+            
+            // Calculate percentage
+            const percentage = (score / questions.length) * 100;
+            
+            // Custom messages based on score
+            if (percentage === 100) {
+                resultMessage.textContent = "Qoyilmaqom! Sizning matematik bilimingiz va pedagogik mahoratingiz yuksak darajada. Haqiqiy ustozsiz!";
+                resultIcon.innerHTML = '<i class="fas fa-trophy text-yellow-400"></i>';
+                resultIcon.className = "mb-4 text-6xl animate-bounce";
+            } else if (percentage >= 80) {
+                resultMessage.textContent = "Juda yaxshi natija! Siz boshlang'ich sinf matematikasini va o'qitish usullarini chuqur tushunasiz.";
+                resultIcon.innerHTML = '<i class="fas fa-star text-green-500"></i>';
+            } else if (percentage >= 60) {
+                resultMessage.textContent = "Yaxshi natija. Ba'zi nazariy yoki metodik masalalarda bilimingizni biroz mustahkamlashingiz kerak.";
+                resultIcon.innerHTML = '<i class="fas fa-thumbs-up text-blue-500"></i>';
+            } else {
+                resultMessage.textContent = "Tushkunlikka tushmang! Matematika metodikasiga oid kitoblarni ko'proq mutolaa qilishni tavsiya qilamiz.";
+                resultIcon.innerHTML = '<i class="fas fa-book-open text-orange-500"></i>';
+            }
+        }
+
+        // Restart the test
+        function restartTest() {
+            resultScreen.classList.add('hidden');
+            startTest();
+        }
+    </script>
+</body>
+</html>
